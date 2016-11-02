@@ -1,0 +1,49 @@
+.reveal h1
+{
+    font-size: 64px;
+}
+
+.reveal li
+{
+    margin-bottom: 30px;
+}
+
+.multiple-columns
+{
+    display: flex;
+}
+
+.column
+{
+    flex-grow: 1;
+}
+
+#technologies .multiple-columns
+{
+    margin-bottom: 50px;
+}
+
+#technologies em
+{
+    font-size: 32px;
+}
+
+#whatToTest
+{
+    text-align: left;
+}
+
+#whatToTest h3:not(:first-child)
+{
+    margin-top: 40px;
+}
+
+.highlight-green
+{
+    color: #17ff2e;
+}
+
+.highlight-red
+{
+    color: #ff2c2d;
+}

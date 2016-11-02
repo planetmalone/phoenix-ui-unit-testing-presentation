@@ -1,50 +1,270 @@
 <!doctype html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<title>reveal.js</title>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<link rel="stylesheet" href="css/reveal.css">
-		<link rel="stylesheet" href="css/theme/black.css">
+	<title>reveal.js</title>
 
-		<!-- Theme used for syntax highlighting of code -->
-		<link rel="stylesheet" href="lib/css/zenburn.css">
+	<link rel="stylesheet" href="css/reveal.css">
+	<link rel="stylesheet" href="css/theme/black.css">
 
-		<!-- Printing and PDF exports -->
-		<script>
-			var link = document.createElement( 'link' );
-			link.rel = 'stylesheet';
-			link.type = 'text/css';
-			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
-			document.getElementsByTagName( 'head' )[0].appendChild( link );
-		</script>
-	</head>
-	<body>
-		<div class="reveal">
-			<div class="slides">
-				<section>Slide 1</section>
-				<section>Slide 2</section>
-			</div>
+	<!-- Theme used for syntax highlighting of code -->
+	<link rel="stylesheet" href="lib/css/zenburn.css">
+	<link rel="stylesheet" href="presentation.css" />
+
+	<!-- Printing and PDF exports -->
+	<script>
+		var link = document.createElement('link');
+		link.rel = 'stylesheet';
+		link.type = 'text/css';
+		link.href = window.location.search.match(/print-pdf/gi) ? 'css/print/pdf.css' : 'css/print/paper.css';
+		document.getElementsByTagName('head')[0].appendChild(link);
+	</script>
+</head>
+
+<body>
+	<div class="reveal">
+		<div class="slides">
+			<section id="splash">
+				<h1>Unit Testing in Phoenix UI</h1>
+			</section>
+			<section>
+				<section class="title">
+					<h2>Technologies</h2></section>
+				<section id="technologies">
+					<div class="multiple-columns">
+						<div class="column">
+							<ol>
+								<li>Mocha</li>
+								<li>Chai</li>
+								<li>Sinon</li>
+								<li>Angular Mocks</li>
+								<li>jsdom</li>
+							</ol>
+						</div>
+						<div class="column">
+							<ol>
+								<li>Testing Framework</li>
+								<li>Assertion Library</li>
+								<li>Spies, Stubs, and Mocks</li>
+								<li>Mocking Angular Components</li>
+								<li>Javascript DOM</li>
+							</ol>
+						</div>
+					</div>
+					<em>Honorable Mentions: Chai Things, Sinon-Chai, Sinon Stub Promise</em>
+				</section>
+				<section>
+					<h3>Test Setup</h3>
+				</section>
+				<section>
+					<pre><code data-trim>
+// Dependencies
+var chai = require('chai');
+var sinon = require('sinon');
+var sinonChai = require('sinon-chai');
+//var chaiAsPromised = require('chai-as-promised');
+var chaiThings = require('chai-things');
+var jsdom = require('jsdom').jsdom;
+var _ = require('lodash');
+
+chai.use(sinonChai);
+//chai.use(chaiAsPromised);
+chai.use(chaiThings);
+
+// Only bootstrap jsdom if it's available.
+if (jsdom) {
+    global.document = jsdom('<html><head><script></script></head><body></body></html>');
+    global.window = global.document.defaultView;
+    global.window.mocha = {};
+    global.window.before = before;
+    global.window.beforeEach = beforeEach;
+    global.window.afer = after;
+    global.window.afterEach = afterEach;
+
+    global.navigator = window.navigator = window.navigator || {};
+    global.Node = window.Node;
+    global.getComputedStyle = global.window.getComputedStyle;
+    global.FormData = sinon.spy(function () {
+        this.append = sinon.spy();
+        this.get = sinon.spy();
+    });
+    global.jQuery = window.jQuery = require('jquery');
+    window.HTMLElement.prototype.offsetParent = document.createElement('div');
+    window.CSSStyleSheet.prototype.media = [];
+
+    global.btoa = function (x) {
+        return x;
+    };
+    global.atob = function (x) {
+        return x;
+    };
+}
+
+require('angular/angular');
+require('angular-mocks');
+global.angular = window.angular;
+global.inject = global.angular.mock.inject;
+global.ngModule = global.angular.mock.module;
+
+// Add support to jsdom
+global.Node.prototype.createSVGPoint = function () {
+    return null;
+};
+
+require('../../app/app.module');
+
+beforeEach(function () {
+    // Create a new sandbox before each test
+    this.sinon = sinon.sandbox.create();
+    global.localStorage = {
+        removeItem: sinon.spy(function (key) {
+            delete this.key;
+        })
+    };
+});
+
+/**
+ * Flushes layouts to not interfere with tests
+ *
+ * @param httpBackend - http mock object
+ */
+function flushLayouts(httpBackend) {
+    httpBackend.expectGET(/layouts/).respond('');
+}
+
+afterEach(function () {
+    // Cleanup the sandbox to remove all the stubs
+    this.sinon.restore();
+});
+
+describe('TESTS!!!!', function() {
+    it('should be able to add', function() {
+        add(2, 2).should.equal(4);
+    });
+});
+					</code></pre>
+				</section>
+				<section>
+					<img src="http://i.gifntext.com/23638-it-s-just-soooo-much-work.gif" />
+				</section>
+				<section>
+					<h3>test-helper.js</h3>
+					<img src="http://vignette4.wikia.nocookie.net/simpsons/images/9/92/WOOHOO.jpg/revision/latest?cb=20120102043236" />
+				</section>
+				<section>
+					<pre><code data-trim>
+var should = require('./test-helper').should();
+
+describe('TESTS!!!!', function() {
+    it('should be able to add', function() {
+        add(2, 2).should.equal(4);
+    });
+});
+					</code></pre>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>What to Test/ Not to Test</h2></section>
+				<section id="whatToTest">
+					<div class="highlight-green">
+						<h3>What to Test</h3>
+						<p>Controllers & Services</p>
+						<p>Resources</p>
+						<p>Components & Directives</p>
+					</div>
+					<div class="highlight-red">
+						<h3>Not to Test</h3>
+						<p>Navigation</p>
+						<p>Interactions between components</p>
+						<p>Calls to the Backend</p>
+					</div>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>Types of Tests</h2></section>
+				<section>
+					<h3>Within Angular Context</h3>
+					<pre><code data-trim>
+beforeEach(ngModule('phoenix.ui'));
+beforeEach(ngModule(function ($urlRouterProvider) {
+    $urlRouterProvider.deferIntercept();
+}));
+beforeEach(inject(function (_$httpBackend_, _TestService_) {
+    $httpBackend = _$httpBackend_;
+    TestService = _TestService_;
+});
+					</code></pre>
+					<em>Components, Directives, and Resources</em>
+				</section>
+				<section>
+					<h3>Pure Javascript</h3>
+					<pre><code data-trim>
+var PageController = require('page.controller');
+
+var APIService = {
+	...
+};
+var $q = {
+	...
+};
+var config = {
+	...
+};
+
+beforeEach(function() {
+    controller = new PageController(APIService, $q, config);
+});
+					</code></pre>
+					<em>Controllers, Services, Routes, everything else</em>
+				</section>
+			</section>
+			<section>
+				<h2>Examples</h2>
+				<img src="http://image.slidesharecdn.com/gettingstartedwithsplunksplunkliveden2016final-160831041010/95/getting-started-with-splunk-handson-12-638.jpg?cb=1472616629"
+				/>
+				<aside class="notes">
+					<p>Go through assesment resource, service, assessment builder controller, multiple choice component.</p>
+					<p>Show promises in controller.</p>
+					<p>Go over loading templates in component.</p>
+					<p>Don't use $httpBackend.expectGET(/*html/).respond(''); Show flushLayouts. (questionList.controller)</p>
+					<p>Show multipleSelect.component to show getting isolateScope.</p>
+					<p>Show assessments.route.test.js</p>
+					<p>Show running via command line and IntelliJ. Show debugging, and the watch. Show test task.
+				</aside>
+			</section>
 		</div>
+	</div>
 
-		<script src="lib/js/head.min.js"></script>
-		<script src="js/reveal.js"></script>
+	<script src="lib/js/head.min.js"></script>
+	<script src="js/reveal.js"></script>
 
-		<script>
-			// More info https://github.com/hakimel/reveal.js#configuration
-			Reveal.initialize({
-				history: true,
+	<script>
+		// More info https://github.com/hakimel/reveal.js#configuration
+		Reveal.initialize({
+			controls: false,
+			history: true,
+			// More info https://github.com/hakimel/reveal.js#dependencies
+			dependencies: [{
+				src: 'plugin/markdown/marked.js'
+			}, {
+				src: 'plugin/markdown/markdown.js'
+			}, {
+				src: 'plugin/notes/notes.js',
+				async: true
+			}, {
+				src: 'plugin/highlight/highlight.js',
+				async: true,
+				callback: function() {
+					hljs.initHighlightingOnLoad();
+				}
+			}]
+		});
+	</script>
+</body>
 
-				// More info https://github.com/hakimel/reveal.js#dependencies
-				dependencies: [
-					{ src: 'plugin/markdown/marked.js' },
-					{ src: 'plugin/markdown/markdown.js' },
-					{ src: 'plugin/notes/notes.js', async: true },
-					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
-				]
-			});
-		</script>
-	</body>
 </html>
