@@ -47,3 +47,13 @@
 {
     color: #ff2c2d;
 }
+
+#links *
+{
+    text-align: left;
+}
+
+#links div
+{
+    margin-bottom: 50px;
+}
